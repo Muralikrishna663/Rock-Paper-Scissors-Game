@@ -1,16 +1,74 @@
-
-let score = {
+let score = JSON.parse(localStorage.getItem('score')) || {
   wins: 0,
   losses: 0,
   ties: 0
 };
+document.body.addEventListener('keydown', (event) => {
+  if (event.key === 'r') {
+    makeMove('rock');
+  } else if (event.key === 'p') {
+    makeMove('paper');
+  } else if (event.key === 's') {
+    makeMove('scissors');
+  } else if (event.key === 'a') {
+    autoPlay();
+  } else if (event.key === 'Backspace') {
+    showResetConformation();
+  }
+})
 
-const savedScore = JSON.parse(localStorage.getItem('score'));
-if (savedScore) {
-  score = savedScore;
+document.querySelector('.js-auto-play').addEventListener('click', () => {
+  autoPlay();
+})
+
+document.querySelector('.js-reset-score-button').addEventListener('click', () => {
+  showResetConformation();
+});
+
+let isAutoPlay = false;
+let intervalId;
+function autoPlay(){
+  if(!isAutoPlay){
+    intervalId = setInterval(function() {
+      const playerMove = pickComputerMove();
+      makeMove(playerMove);
+    }, 1000);
+    isAutoPlay = true;
+
+    document.querySelector('.js-auto-play').innerHTML = 'Stop Play';
+  }else{
+    clearInterval(intervalId);
+    isAutoPlay = false;
+
+    console.log(document.querySelector('.js-auto-play').innerHTML = 'Auto Play');
+  }
 }
 
 updateScoreElement();
+
+function showResetConformation() {
+  document.querySelector('.js-reset-conformation').innerHTML = `
+    Are you sure you want to reset the score? 
+    <button class = "js-reset-confirm-yes reset-confirm-button">
+      Yes
+    </button>
+    <button class = "js-reset-confirm-no reset-confirm-button">
+      No
+    </button>
+  `
+
+document.querySelector('.js-reset-confirm-yes').addEventListener('click', () => {
+  resetScore();
+  hideResetConformation();
+});
+document.querySelector('.js-reset-confirm-no').addEventListener('click', () => {
+  hideResetConformation();
+});
+}
+
+function hideResetConformation() {
+  document.querySelector('.js-reset-conformation').innerHTML = '';
+}
 
 function makeMove(playerMove) {
   const computerMove = pickComputerMove();
